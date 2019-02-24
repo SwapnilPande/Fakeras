@@ -11,9 +11,9 @@ class Relu:
         return input
 
 class Sigmoid:
-    def applyActivation(input):
+    def activation(input):
         return np.tanh(input)
 
-    def applyDerivative(input):
+    def gradient(input):
         a = tanh(input)
         return 1 - a*a
