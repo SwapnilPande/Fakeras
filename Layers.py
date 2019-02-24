@@ -1,8 +1,17 @@
 class Dense:
     def __init__(self, neurons, activation):
+        self.neurons = neurons
         self.w  = None
         self.b = None
         self.activation = activation
+
+    def initWeights(prevLayerDim):
+        # Initialize weights to value between 0-0.01
+        # Dimension of w: N[l] x N[l-1]
+        self.w = np.random.rand(self.neurons, prevLayerDim)/100
+
+        # Dimension of w: N[l] x 1
+        self.b = np.random.rand(self.neurons, 1)/100
 
     def forwardProp(prevA):
         # Save activation from previous layer to calculate gradient
@@ -27,3 +36,13 @@ class Dense:
 
         # Return derivation with respect to activation of previous layer
         return np.dot(self.w.transpose(), dZ)
+
+    def __len__():
+        return neurons
+
+class Input:
+    def __init__(self, inputDim):
+        self.inputDim = inputDim
+
+    def forwardProp(x):
+        return np.copy(x)
