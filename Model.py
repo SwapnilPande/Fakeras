@@ -1,6 +1,6 @@
 
-import Layers
-import Losses
+import Fakeras.Layers
+import Fakeras.Losses
 import numpy as np
 
 # Model class defines the entire model structure and has functions for fitting and generating predictions
@@ -13,26 +13,29 @@ class Model:
     def __init__(self):
         # List containing layers for the neural network
         self.layers = []
-        # List containing loss at each iteration of GD
-        self.lossPerIteration = []
+
+
+        # Init variable to store numpy array to propagate through network
+        self.a = None
 
     # Append a layer to the end of the layer list
-    def add(layer):
+    def add(self, layer):
         self.layers.append(layer)
 
-    def compile(loss, lr):
+    def compile(self, loss, lr):
         self.loss = loss
         self.lr = lr
         for i in range(1, len(self.layers)):
-            layers.initWeights(len(self.layers[i-1]))
+            self.layers[i].initWeights(len(self.layers[i-1]))
 
     # Run forward propagation algorithm
     def __forwardProp__(self, x):
-        # Input layer, return copy of x_train
-        self.a = self.layers[0].forwardProp(x)
+        # a stores the numpy array propagating through nn
+        self.a = x
+
         # Propagate through each hidden layer and output layer
         for i in range(1, len(self.layers)):
-            self.a = self.layers[i].forwardProp(a)
+            self.a = self.layers[i].forwardProp(self.a)
 
     # Calculate the loss
     def __calculateLoss__(self, y_train):
@@ -54,12 +57,20 @@ class Model:
 
     # Train the model using the gradient descent algorithm
     def fit(self, x_train, y_train, epochs):
+        # List containing loss at each iteration of GD
+        lossPerIteration = [None] * epochs
+
         # Iterate number of epochs
         for i in range(epochs):
             self.__forwardProp__(x_train)
-            self.lossPerIteration.append(self.__calculateLoss__(y_train))
+            lossPerIteration[i] = (self.__calculateLoss__(y_train))
             self.__backProp__(y_train)
             self.__updateWeights__()
+
+            if(i % 100 == 0):
+                print("Epoch: {epoch}\tTraining Loss: {train_loss}".format(epoch=i, train_loss=lossPerIteration[i]))
+
+        return lossPerIteration
 
     def predict(self, x):
         self.__forwardProp__(x)
