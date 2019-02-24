@@ -1,6 +1,7 @@
 
 import Layers
 import Losses
+import numpy as np
 
 # Model class defines the entire model structure and has functions for fitting and generating predictions
 # To add layers, call Model.add() and pass a Layer object

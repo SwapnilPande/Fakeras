@@ -1,4 +1,4 @@
-
+import numpy as np
 
 class BinaryCrossEntropy:
     def loss(y, a):
