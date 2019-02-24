@@ -37,6 +37,10 @@ class Dense:
         # Return derivation with respect to activation of previous layer
         return np.dot(self.w.transpose(), dZ)
 
+    def updateWeights():
+        self.w = self.w - lr*self.dW
+        self.b = self.b - lr*self*dB
+
     def __len__():
         return neurons
 
