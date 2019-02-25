@@ -2,6 +2,7 @@
 import Fakeras.Layers
 import Fakeras.Losses
 import numpy as np
+import time
 
 # Model class defines the entire model structure and has functions for fitting and generating predictions
 # To add layers, call Model.add() and pass a Layer object
@@ -25,17 +26,23 @@ class Model:
     def compile(self, loss, lr):
         self.loss = loss
         self.lr = lr
-        for i in range(1, len(self.layers)):
-            self.layers[i].initWeights(len(self.layers[i-1]))
+
+        # Compile input layer separately
+        # There is no previous layer
+        self.layers[0].compile(None, self.layers[1])
+
+        # Compile each hidden layer
+        for i in range(1, len(self.layers)-1):
+            self.layers[i].compile(self.layers[i-1], self.layers[i+1])
+
+        # Compile output layer separately
+        # There is no next layer
+        self.layers[-1].compile(self.layers[-2], None)
 
     # Run forward propagation algorithm
     def __forwardProp__(self, x):
-        # a stores the numpy array propagating through nn
-        self.a = x
-
-        # Propagate through each hidden layer and output layer
-        for i in range(1, len(self.layers)):
-            self.a = self.layers[i].forwardProp(self.a)
+        # a stores the numpy array propagating through neural network
+        self.a = self.layers[0].forwardProp(x)
 
     # Calculate the loss
     def __calculateLoss__(self, y_train):
@@ -43,12 +50,8 @@ class Model:
 
     # Run backpropagation to calculate gradients
     def __backProp__(self, y_train):
-        # Calculate dA for loss function
-        grad = self.loss.gradient(y_train, self.a)
-
-        # Calculate gradients for each layer
-        for i in reversed(range(1, len(self.layers))):
-            grad = self.layers[i].backProp(grad)
+        # Calculate gradients for all layers recursively
+        self.layers[-1].backProp(self.loss.gradient(y_train, self.a))
 
     # Update weights of each layer
     def __updateWeights__(self):
@@ -62,11 +65,23 @@ class Model:
 
         # Iterate number of epochs
         for i in range(epochs):
+            st = time.time()
             self.__forwardProp__(x_train)
+            fpTime = time.time() - st
+            st = time.time()
             lossPerIteration[i] = (self.__calculateLoss__(y_train))
+            lossTime = time.time() - st
+            st = time.time()
             self.__backProp__(y_train)
+            bpTime = time.time() - st
+            st = time.time()
             self.__updateWeights__()
-
+            updateTime = time.time() - st
+            print("Forward: {fpTime}\tBackward: {bpTime}\tLoss: {lossTime}\tUpdate: {updateTime}".format(
+                fpTime= fpTime,
+                bpTime=bpTime,
+                lossTime=lossTime,
+                updateTime=updateTime))
             if(i % 100 == 0):
                 print("Epoch: {epoch}\tTraining Loss: {train_loss}".format(epoch=i, train_loss=lossPerIteration[i]))
 
