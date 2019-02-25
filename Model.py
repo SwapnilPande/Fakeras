@@ -65,23 +65,14 @@ class Model:
 
         # Iterate number of epochs
         for i in range(epochs):
-            st = time.time()
             self.__forwardProp__(x_train)
-            fpTime = time.time() - st
-            st = time.time()
+
             lossPerIteration[i] = (self.__calculateLoss__(y_train))
-            lossTime = time.time() - st
-            st = time.time()
+
             self.__backProp__(y_train)
-            bpTime = time.time() - st
-            st = time.time()
+
             self.__updateWeights__()
-            updateTime = time.time() - st
-            print("Forward: {fpTime}\tBackward: {bpTime}\tLoss: {lossTime}\tUpdate: {updateTime}".format(
-                fpTime= fpTime,
-                bpTime=bpTime,
-                lossTime=lossTime,
-                updateTime=updateTime))
+
             if(i % 100 == 0):
                 print("Epoch: {epoch}\tTraining Loss: {train_loss}".format(epoch=i, train_loss=lossPerIteration[i]))
 

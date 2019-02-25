@@ -51,9 +51,10 @@ class Dense(Layer):
         self.dW = 1/self.m * np.dot(dZ, self.prevA.transpose())
         self.dB = 1/self.m * np.sum(dZ)
 
-        # Return derivative with respect to activation of previous layer
-        dA = np.dot(self.w.transpose(), dZ)
-        self.prevLayer.backProp(dA)
+        # Pass dA to previous layer unless previous layer is Input
+        if(type(self.prevLayer) is not Input):
+            dA = np.dot(self.w.transpose(), dZ)
+            self.prevLayer.backProp(dA)
 
     def updateWeights(self, lr):
         self.w = self.w - lr*self.dW
