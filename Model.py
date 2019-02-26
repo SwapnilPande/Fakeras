@@ -45,8 +45,8 @@ class Model:
         self.a = self.layers[0].forwardProp(x)
 
     # Calculate the loss
-    def __calculateLoss__(self, y_train, layers):
-        return self.loss.loss(y_train, self.a, layers)
+    def __calculateLoss__(self, y_train):
+        return self.loss.loss(y_train, self.a, self.layers)
 
     # Run backpropagation to calculate gradients
     def __backProp__(self, y_train):
@@ -67,7 +67,7 @@ class Model:
         for i in range(epochs):
             self.__forwardProp__(x_train)
 
-            lossPerIteration[i] = (self.__calculateLoss__(y_train, layers))
+            lossPerIteration[i] = (self.__calculateLoss__(y_train))
 
             self.__backProp__(y_train)
 
