@@ -1,19 +1,21 @@
 import numpy as np
 import time
+import Regularizers
 
 #Base class for layers
 class Layer:
-    def __init__(self, neurons, activation):
+    def __init__(self, neurons, activation, regularizer = None):
         self.neurons = neurons
         self.w  = None
         self.b = None
         self.activation = activation
         self.nextLayer = None
         self.prevLayer = None
+        self.regularizer = regularizer
 
 class Dense(Layer):
-    def __init__(self, neurons, activation):
-        super().__init__(neurons, activation)
+    def __init__(self, neurons, activation, regularizer = None):
+        super().__init__(neurons, activation, regularizer)
 
     def compile(self, prevLayer, nextLayer):
         self.prevLayer = prevLayer
@@ -48,7 +50,13 @@ class Dense(Layer):
         dZ = prevdA * self.activation.gradient(self.Z)
 
         # Calculate gradients with respect to weights and biases
-        self.dW = 1/self.m * np.dot(dZ, self.prevA.transpose())
+        self.dW = np.dot(dZ, self.prevA.transpose())
+        # Regularization term if layer has regularizer
+        if(self.regularizer is not None):
+            self.dw += self.regularizer.gradient(self.w)
+        # Normalize weight gradient to input size
+        self.dW *= 1/self.m
+
         self.dB = 1/self.m * np.sum(dZ)
 
         # Pass dA to previous layer unless previous layer is Input
@@ -57,8 +65,8 @@ class Dense(Layer):
             self.prevLayer.backProp(dA)
 
     def updateWeights(self, lr):
-        self.w = self.w - lr*self.dW
-        self.b = self.b - lr*self.dB
+        self.w -= - lr*self.dW
+        self.b -= self.b - lr*self.dB
 
     def __len__(self):
         return self.neurons
