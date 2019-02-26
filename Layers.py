@@ -65,8 +65,8 @@ class Dense(Layer):
             self.prevLayer.backProp(dA)
 
     def updateWeights(self, lr):
-        self.w -= - lr*self.dW
-        self.b -= self.b - lr*self.dB
+        self.w -= lr*self.dW
+        self.b -= lr*self.dB
 
     def __len__(self):
         return self.neurons
