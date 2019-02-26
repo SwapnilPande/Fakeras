@@ -2,7 +2,7 @@ import numpy as np
 import Fakeras.Layers
 
 class BinaryCrossEntropy:
-    def loss(self, y, a):
+    def loss(self, y, a, layers):
         # Loss without regularization
         j = np.sum(-1*y * np.log(a) - (1-y) * np.log(1-a))/a.shape[1]
 
