@@ -53,7 +53,7 @@ class Dense(Layer):
         self.dW = np.dot(dZ, self.prevA.transpose())
         # Regularization term if layer has regularizer
         if(self.regularizer is not None):
-            self.dw += self.regularizer.gradient(self.w)
+            self.dW += self.regularizer.gradient(self.w)
         # Normalize weight gradient to input size
         self.dW *= 1/self.m
 
