@@ -59,7 +59,7 @@ class Model:
             self.layers[i].updateWeights(self.lr)
 
     # Train the model using the gradient descent algorithm
-    def fit(self, x_train, y_train, epochs):
+    def fit(self, x_train, y_train, epochs, x_val = None, y_val = None, valFreq = 100):
         # List containing loss at each iteration of GD
         lossPerIteration = [None] * epochs
 
@@ -73,13 +73,46 @@ class Model:
 
             self.__updateWeights__()
 
-            if(i % 100 == 0):
-                print("Epoch: {epoch}\tTraining Loss: {train_loss}".format(epoch=i, train_loss=lossPerIteration[i]))
+
+            if(i % valFreq == 0):
+                if(x_val is not None and y_val is not None):
+                    valLoss,_ = self.evaluate(x_val, y_val)
+                    print("Epoch: {epoch}\tTraining Loss: {train_loss}\tValidation Loss: {valLoss}".format(
+                        epoch=i,
+                        train_loss=lossPerIteration[i],
+                        valLoss = valLoss))
+                else:
+                    print("Epoch: {epoch}\tTraining Loss: {train_loss}".format(
+                        epoch=i,
+                        train_loss=lossPerIteration[i]))
+
+        # Print final training loss
+        print("Final Training Loss: {finalTrainingLoss}".format(finalTrainingLoss = lossPerIteration[-1]))
 
         return lossPerIteration
 
+    def evaluate(self, x, y):
+        # Run forward prop to generate predictions
+        self.__forwardProp__(x)
+
+        loss = self.__calculateLoss__(y)
+
+        predictions = np.copy(self.a)
+        predictions[predictions > 0.5] = 1
+        predictions[predictions <= 0.5] = 0
+
+        error = 100*np.count_nonzero(predictions - y)/x.shape[1]
+
+        return loss, error
+
+
     def predict(self, x):
         self.__forwardProp__(x)
-        return self.a
+
+        predictions = np.copy(self.a)
+        predictions[predictions > 0.5] = 1
+        predictions[predictions <= 0.5] = 0
+
+        return predictions
 
 
