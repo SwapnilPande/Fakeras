@@ -8,7 +8,7 @@ class L2:
 
     # Return regularization penalty
     def regularizer(self, w):
-        return np.sum(w)
+        return np.sum(w)*np.sum(w)
 
     def gradient(self, w):
         return self.alpha * w
