@@ -1,6 +1,6 @@
 import numpy as np
 import time
-import Regularizers
+import Fakeras.Regularizers
 
 #Base class for layers
 class Layer:
