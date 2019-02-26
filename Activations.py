@@ -2,7 +2,9 @@ import numpy as np
 
 class Relu:
     def activation(self, input):
+        print("Applying activation")
         input[input <= 0] = 0
+        print(input)
         return input
 
     def gradient(self, input):
@@ -20,7 +22,9 @@ class Tanh:
 
 class Sigmoid:
     def activation(self, input):
+        print("Applying sigmoid")
         self.a = 1/(1+np.exp(-1*input))
+        print(self.a)
         return self.a
 
     def gradient(self, input):
