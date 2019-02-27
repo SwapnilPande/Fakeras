@@ -1,4 +1,3 @@
-
 import Fakeras.Layers
 import Fakeras.Losses
 import numpy as np
@@ -64,8 +63,8 @@ class Model:
         lossPerIteration = [None] * epochs
 
         # Enable Dropout Layers
-        for layer in layers:
-            if type(Layer) is Dropout:
+        for layer in self.layers:
+            if type(layer) is Fakeras.Layers.Dropout:
                 layer.enable()
 
 
@@ -99,8 +98,8 @@ class Model:
 
     def evaluate(self, x, y):
         # Disable dropout layers
-        for layer in layers:
-            if type(Layer) is Dropout:
+        for layer in self.layers:
+            if type(layer) is Fakeras.Layers.Dropout:
                 layer.disable()
 
         # Run forward prop to generate predictions
@@ -119,8 +118,8 @@ class Model:
 
     def predict(self, x):
         # Disable dropout layers
-        for layer in layers:
-            if type(Layer) is Dropout:
+        for layer in self.layers:
+            if type(layer) is Fakeras.Layers.Dropout:
                 layer.disable()
 
         self.__forwardProp__(x)

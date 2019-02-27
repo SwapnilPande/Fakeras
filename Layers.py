@@ -86,7 +86,7 @@ class Input(Layer):
     def backProp(self, prevdA):
         return
 
-class Droupout(Layer):
+class Dropout(Layer):
     def __init__(self, keepProbability):
         # Init to no neurons with no activation temporarily
         # Number neurons will be defined in the compile
@@ -111,7 +111,7 @@ class Droupout(Layer):
 
         # DROPOUT IS ENABLED
         # Create dropout mask filled with random values in range [0,1)
-        self.mask = np.random.rand(prevA.shape)
+        self.mask = np.random.rand(*prevA.shape)
 
         # Set all values < (1 - keepProbability) to 0
         # These are the neurons that will be dropped
