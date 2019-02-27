@@ -13,6 +13,9 @@ class Layer:
         self.prevLayer = None
         self.regularizer = regularizer
 
+    def __len__(self):
+        return self.neurons
+
 class Dense(Layer):
     def __init__(self, neurons, activation, regularizer = None):
         super().__init__(neurons, activation, regularizer)
@@ -68,8 +71,6 @@ class Dense(Layer):
         self.w -= lr*self.dW
         self.b -= lr*self.dB
 
-    def __len__(self):
-        return self.neurons
 
 class Input(Layer):
     def __init__(self, inputDim):
@@ -85,5 +86,45 @@ class Input(Layer):
     def backProp(self, prevdA):
         return
 
-    def __len__(self):
-        return self.neurons
+class Droupout(Layer):
+    def __init__(self, keepProbability):
+        # Init to no neurons with no activation temporarily
+        # Number neurons will be defined in the compile
+        super().__init__(None, None)
+
+        # Define keep probability
+        self.keepProbability = keepProbability
+
+
+    def compile(self, prevLayer, nextLayer):
+        self.prevLayer = prevLayer
+        self.neurons = len(prevLayer)
+        self.nextLayer = nextLayer
+
+    def forwardProp(self, prevA):
+        # Create dropout mask filled with random values in range [0,1)
+        self.mask = np.random.rand(prevA.shape)
+
+        # Set all values < (1 - keepProbability) to 0
+        # These are the neurons that will be dropped
+        self.mask[self.mask <= (1-self.keepProbability)] = 0
+
+        # Set all other values to 1, these are values to keep
+        self.mask[self.mask > 0] = 1
+
+        # Apply mask and pass to next layer
+        if(self.nextLayer != None):
+            return self.nextLayer.forwardProp(self.mask * prevA)
+
+        # If there is not another layer, return tensor after applying activation function
+        return self.activation.activation(self.mask * prevA)
+
+    def backProp(self, prevdA):
+        # Apply mask and pass to previous layer if previous layer is not input
+        if(type(self.prevLayer) is not Input):
+            dA = np.dot(self.w.transpose(), dZ)
+            self.prevLayer.backProp(self.mask*prevdA)
+
+    # Function does nothing, defined for compatibility with Model class
+    def updateWeights(self, lr):
+        return
