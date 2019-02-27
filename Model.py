@@ -63,6 +63,12 @@ class Model:
         # List containing loss at each iteration of GD
         lossPerIteration = [None] * epochs
 
+        # Enable Dropout Layers
+        for layer in layers:
+            if type(Layer) is Dropout:
+                layer.enable()
+
+
         # Iterate number of epochs
         for i in range(epochs):
             self.__forwardProp__(x_train)
@@ -92,6 +98,11 @@ class Model:
         return lossPerIteration
 
     def evaluate(self, x, y):
+        # Disable dropout layers
+        for layer in layers:
+            if type(Layer) is Dropout:
+                layer.disable()
+
         # Run forward prop to generate predictions
         self.__forwardProp__(x)
 
@@ -107,6 +118,11 @@ class Model:
 
 
     def predict(self, x):
+        # Disable dropout layers
+        for layer in layers:
+            if type(Layer) is Dropout:
+                layer.disable()
+
         self.__forwardProp__(x)
 
         predictions = np.copy(self.a)
