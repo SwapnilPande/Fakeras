@@ -117,13 +117,12 @@ class Droupout(Layer):
             return self.nextLayer.forwardProp(self.mask * prevA)
 
         # If there is not another layer, return tensor after applying activation function
-        return self.activation.activation(self.mask * prevA)
+        return self.activation.activation((self.mask*prevA)/self.keepProbability)
 
     def backProp(self, prevdA):
         # Apply mask and pass to previous layer if previous layer is not input
         if(type(self.prevLayer) is not Input):
-            dA = np.dot(self.w.transpose(), dZ)
-            self.prevLayer.backProp(self.mask*prevdA)
+            self.prevLayer.backProp((self.mask*prevdA)/self.keepProbability)
 
     # Function does nothing, defined for compatibility with Model class
     def updateWeights(self, lr):
