@@ -58,7 +58,7 @@ class Model:
             self.layers[i].updateWeights(self.lr)
 
     # Train the model using the gradient descent algorithm
-    def fit(self, x_train, y_train, epochs, x_val = None, y_val = None, valFreq = 100):
+    def fit(self, x_train, y_train, epochs, x_val = None, y_val = None, valFreq = 1000):
         # List containing loss at each iteration of GD
         lossPerIteration = [None] * epochs
 

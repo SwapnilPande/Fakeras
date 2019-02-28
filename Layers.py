@@ -26,10 +26,13 @@ class Dense(Layer):
 
         # Initialize weights to value between 0-0.01
         # Dimension of w: N[l] x N[l-1]
-        self.w = np.random.rand(self.neurons, len(self.prevLayer))/100
+        self.w = 0.8*np.random.randn(self.neurons, len(self.prevLayer))
 
         # Dimension of w: N[l] x 1
-        self.b = np.random.rand(self.neurons, 1)/100
+        self.b = 0.8*np.random.randn(self.neurons, 1)
+
+        self.w[self.w == 0] = 0.5
+        self.b[self.b == 0] = 0.5
 
     def forwardProp(self, prevA):
         # Save activation from previous layer to calculate gradient
@@ -103,7 +106,7 @@ class Dropout(Layer):
 
     def forwardProp(self, prevA):
         if(self.enabled is False):
-             # Apply mask and pass to next layer
+            # Apply mask and pass to next layer
             if(self.nextLayer != None):
                 return self.nextLayer.forwardProp(prevA)
             # If there is not another layer, return tensor after applying activation function
