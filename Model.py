@@ -2,6 +2,7 @@ import Fakeras.Layers
 import Fakeras.Losses
 import numpy as np
 import time
+import tqdm
 
 # Model class defines the entire model structure and has functions for fitting and generating predictions
 # To add layers, call Model.add() and pass a Layer object
@@ -58,9 +59,16 @@ class Model:
             self.layers[i].updateWeights(self.lr)
 
     # Train the model using the gradient descent algorithm
-    def fit(self, x_train, y_train, epochs, x_val = None, y_val = None, valFreq = 1000):
-        # List containing loss at each iteration of GD
-        lossPerIteration = [None] * epochs
+    def fit(self, x_train, y_train, batch_size = None, epochs = 1, x_val = None, y_val = None, valFreq = 1000):
+        # If no batch size specified, set batch size to the number of data points to run GD
+        if(batch_size is None):
+            batch_size = x_train.shape[1]
+
+        # Calculate the number of minibatches to be generated
+        numSteps = math.ceil(x_train.shape[1]/batch_size)
+
+        # List containing loss at each iteration of SGD
+        lossPerIteration = [None] * epochs * numSteps
 
         # Enable Dropout Layers
         for layer in self.layers:
@@ -70,13 +78,39 @@ class Model:
 
         # Iterate number of epochs
         for i in range(epochs):
-            self.__forwardProp__(x_train)
+            print("Epoch {i}/{epochs}".format(i = i, epochs = epochs))
+            # Shuffle data to split into batches
+            # Create a random permutation of number of examples
+            randOrder = np.random.permutation(x_train.shape[1])
 
-            lossPerIteration[i] = (self.__calculateLoss__(y_train))
+            # Rearrange the data according to the random index
+            x_train_shuffled = x_train[:, randOrder]
+            y_train_shuffled = y_train[:, randOrder]
 
-            self.__backProp__(y_train)
+            pbar = tqdm.trange(numSteps))
+            for j in pbar:
+                # Index to retrieve X
+                startIndex = j*self.batchSize
 
-            self.__updateWeights__()
+                # Generate minibatches
+                try: #Full size batch
+                    minibatch_x = x_train_shuffled[:, startIndex : startIndex + self.batchSize]
+                    minibatch_y = y_train_shuffled[:, startIndex : startIndex + self.batchSize]
+                except IndexError: #Retrieve small batch at the end of the array
+                    minibatch_x = x_train_shuffled[:, startIndex:]
+                    minibatch_y = y_train_shuffled[:, startIndex:]
+
+                self.__forwardProp__(minibatch_x)
+
+                # Store loss
+                lossPerIteration[j + numSteps*i] = self.__calculateLoss__(minibatch_y)
+
+                # Display loss on progress bar
+                pbar.set_postfix(loss = lossPerIteration[j + numSteps*i])
+
+                self.__backProp__(y_train)
+
+                self.__updateWeights__()
 
 
             if(i % valFreq == 0):
