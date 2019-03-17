@@ -3,6 +3,7 @@ import Fakeras.Losses
 import numpy as np
 import time
 import tqdm
+import math
 
 # Model class defines the entire model structure and has functions for fitting and generating predictions
 # To add layers, call Model.add() and pass a Layer object
@@ -59,7 +60,7 @@ class Model:
             self.layers[i].updateWeights(self.lr)
 
     # Train the model using the gradient descent algorithm
-    def fit(self, x_train, y_train, batch_size = None, epochs = 1, x_val = None, y_val = None, valFreq = 1000):
+    def fit(self, x_train, y_train, batch_size = None, epochs = 1, x_val = None, y_val = None, valFreq = 5):
         # If no batch size specified, set batch size to the number of data points to run GD
         if(batch_size is None):
             batch_size = x_train.shape[1]
@@ -68,7 +69,7 @@ class Model:
         numSteps = math.ceil(x_train.shape[1]/batch_size)
 
         # List containing loss at each iteration of SGD
-        lossPerIteration = [None] * epochs * numSteps
+        lossPerIteration = [None] * epochs
 
         # Enable Dropout Layers
         for layer in self.layers:
@@ -78,7 +79,6 @@ class Model:
 
         # Iterate number of epochs
         for i in range(epochs):
-            print("Epoch {i}/{epochs}".format(i = i, epochs = epochs))
             # Shuffle data to split into batches
             # Create a random permutation of number of examples
             randOrder = np.random.permutation(x_train.shape[1])
@@ -87,15 +87,15 @@ class Model:
             x_train_shuffled = x_train[:, randOrder]
             y_train_shuffled = y_train[:, randOrder]
 
-            pbar = tqdm.trange(numSteps))
+            pbar = tqdm.trange(numSteps, desc = "Epoch {i}/{epochs}".format(i = i, epochs = epochs))
             for j in pbar:
                 # Index to retrieve X
-                startIndex = j*self.batchSize
+                startIndex = j*batch_size
 
                 # Generate minibatches
                 try: #Full size batch
-                    minibatch_x = x_train_shuffled[:, startIndex : startIndex + self.batchSize]
-                    minibatch_y = y_train_shuffled[:, startIndex : startIndex + self.batchSize]
+                    minibatch_x = x_train_shuffled[:, startIndex : startIndex + batch_size]
+                    minibatch_y = y_train_shuffled[:, startIndex : startIndex + batch_size]
                 except IndexError: #Retrieve small batch at the end of the array
                     minibatch_x = x_train_shuffled[:, startIndex:]
                     minibatch_y = y_train_shuffled[:, startIndex:]
@@ -103,27 +103,27 @@ class Model:
                 self.__forwardProp__(minibatch_x)
 
                 # Store loss
-                lossPerIteration[j + numSteps*i] = self.__calculateLoss__(minibatch_y)
+                #lossPerIteration[j + numSteps*i] = self.__calculateLoss__(minibatch_y)
+                loss = self.__calculateLoss__(minibatch_y)
 
-                # Display loss on progress bar
-                pbar.set_postfix(loss = lossPerIteration[j + numSteps*i])
 
-                self.__backProp__(y_train)
+                self.__backProp__(minibatch_y)
 
                 self.__updateWeights__()
 
 
-            if(i % valFreq == 0):
-                if(x_val is not None and y_val is not None):
+                # Display loss on progress bar, display validation loss if reached val frequency is correct
+                if(j == numSteps -1 and i % valFreq == 0 and x_val is not None and y_val is not None):
                     valLoss,_ = self.evaluate(x_val, y_val)
-                    print("Epoch: {epoch}\tTraining Loss: {train_loss}\tValidation Loss: {valLoss}".format(
-                        epoch=i,
-                        train_loss=lossPerIteration[i],
-                        valLoss = valLoss))
+                    pbar.set_postfix(loss = loss, val_loss = valLoss)
                 else:
-                    print("Epoch: {epoch}\tTraining Loss: {train_loss}".format(
-                        epoch=i,
-                        train_loss=lossPerIteration[i]))
+                    pbar.set_postfix(loss = loss)
+
+            lossPerIteration[i] = loss
+
+
+
+
 
         # Print final training loss
         print("Final Training Loss: {finalTrainingLoss}".format(finalTrainingLoss = lossPerIteration[-1]))

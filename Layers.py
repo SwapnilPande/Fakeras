@@ -26,13 +26,11 @@ class Dense(Layer):
 
         # Initialize weights to value between 0-0.01
         # Dimension of w: N[l] x N[l-1]
-        self.w = 0.8*np.random.randn(self.neurons, len(self.prevLayer))
+        self.w = 0.01*np.random.randn(self.neurons, len(self.prevLayer))
 
         # Dimension of w: N[l] x 1
-        self.b = 0.8*np.random.randn(self.neurons, 1)
+        self.b = 0.01*np.random.randn(self.neurons, 1)
 
-        self.w[self.w == 0] = 0.5
-        self.b[self.b == 0] = 0.5
 
     def forwardProp(self, prevA):
         # Save activation from previous layer to calculate gradient
