@@ -24,9 +24,9 @@ class Model:
     def add(self, layer):
         self.layers.append(layer)
 
-    def compile(self, loss, lr):
+    def compile(self, optimizer, loss):
+        self.optimizer = optimizer
         self.loss = loss
-        self.lr = lr
 
         # Compile input layer separately
         # There is no previous layer
@@ -56,8 +56,7 @@ class Model:
 
     # Update weights of each layer
     def __updateWeights__(self):
-        for i in range(1, len(self.layers)):
-            self.layers[i].updateWeights(self.lr)
+        self.optimizer.updateWeight(self.layers)
 
     # Train the model using the gradient descent algorithm
     def fit(self, x_train, y_train, batch_size = None, epochs = 1, x_val = None, y_val = None, valFreq = 5):
@@ -69,7 +68,7 @@ class Model:
         numSteps = math.ceil(x_train.shape[1]/batch_size)
 
         # List containing loss at each iteration of SGD
-        lossPerIteration = [None] * epochs
+        lossPerIteration = [None] * epochs * numSteps
 
         # Enable Dropout Layers
         for layer in self.layers:
@@ -103,9 +102,7 @@ class Model:
                 self.__forwardProp__(minibatch_x)
 
                 # Store loss
-                #lossPerIteration[j + numSteps*i] = self.__calculateLoss__(minibatch_y)
-                loss = self.__calculateLoss__(minibatch_y)
-
+                lossPerIteration[j + numSteps*i] = self.__calculateLoss__(minibatch_y)
 
                 self.__backProp__(minibatch_y)
 
@@ -115,15 +112,9 @@ class Model:
                 # Display loss on progress bar, display validation loss if reached val frequency is correct
                 if(j == numSteps -1 and i % valFreq == 0 and x_val is not None and y_val is not None):
                     valLoss,_ = self.evaluate(x_val, y_val)
-                    pbar.set_postfix(loss = loss, val_loss = valLoss)
+                    pbar.set_postfix(loss = lossPerIteration[j + numSteps*i], val_loss = valLoss)
                 else:
-                    pbar.set_postfix(loss = loss)
-
-            lossPerIteration[i] = loss
-
-
-
-
+                    pbar.set_postfix(loss = lossPerIteration[j + numSteps*i])
 
         # Print final training loss
         print("Final Training Loss: {finalTrainingLoss}".format(finalTrainingLoss = lossPerIteration[-1]))

@@ -4,7 +4,7 @@ import Fakeras.Regularizers
 
 #Base class for layers
 class Layer:
-    def __init__(self, neurons, activation, regularizer = None):
+    def __init__(self, neurons, activation, regularizer = None, trainable = True):
         self.neurons = neurons
         self.w  = None
         self.b = None
@@ -12,6 +12,7 @@ class Layer:
         self.nextLayer = None
         self.prevLayer = None
         self.regularizer = regularizer
+        self.trainable = trainable
 
     def __len__(self):
         return self.neurons
@@ -68,10 +69,6 @@ class Dense(Layer):
             dA = np.dot(self.w.transpose(), dZ)
             self.prevLayer.backProp(dA)
 
-    def updateWeights(self, lr):
-        self.w -= lr*self.dW
-        self.b -= lr*self.dB
-
 
 class Input(Layer):
     def __init__(self, inputDim):
@@ -91,7 +88,7 @@ class Dropout(Layer):
     def __init__(self, keepProbability):
         # Init to no neurons with no activation temporarily
         # Number neurons will be defined in the compile
-        super().__init__(None, None)
+        super().__init__(None, None, trainable = False)
 
         # Define keep probability
         self.keepProbability = keepProbability
