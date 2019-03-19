@@ -72,7 +72,7 @@ class Dense(Layer):
 
 class Input(Layer):
     def __init__(self, inputDim):
-        super().__init__(inputDim, None)
+        super().__init__(inputDim, None, trainable = False)
 
     def compile(self, prevLayer, nextLayer):
         self.prevLayer = prevLayer

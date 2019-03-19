@@ -40,6 +40,8 @@ class Model:
         # There is no next layer
         self.layers[-1].compile(self.layers[-2], None)
 
+        self.optimizer.compile(self.layers)
+
     # Run forward propagation algorithm
     def __forwardProp__(self, x):
         # a stores the numpy array propagating through neural network
@@ -56,7 +58,7 @@ class Model:
 
     # Update weights of each layer
     def __updateWeights__(self):
-        self.optimizer.updateWeight(self.layers)
+        self.optimizer.updateWeights(self.layers)
 
     # Train the model using the gradient descent algorithm
     def fit(self, x_train, y_train, batch_size = None, epochs = 1, x_val = None, y_val = None, valFreq = 5):

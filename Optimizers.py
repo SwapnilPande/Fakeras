@@ -34,8 +34,8 @@ class SGD(Optimizer):
             # Check to skip layers like dropout
             if(layer.trainable):
                 # Initialize all velocities to zero
-                self.weightVelocities[i] = np.zeros(layers.w.shape)
-                self.biasVelocities[i] = np.zeros(layers.b.shape)
+                self.weightVelocities[i] = np.zeros(layer.w.shape)
+                self.biasVelocities[i] = np.zeros(layer.b.shape)
 
     def updateWeights(self, layers):
         # Iterate over all layers
